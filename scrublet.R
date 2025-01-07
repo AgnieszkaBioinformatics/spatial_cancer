@@ -79,20 +79,20 @@ for (i in 1:length(seurat)) {
         print("Writing data for Scrublet")
         writeMM(mat, file = "expression_matrix.mtx")
 
-        scr <- reticulate::import("scrublet", convert = FALSE)
+        scr <- reticulate::import("scrublet", convert = FALSE)    # for using python code
         np <- reticulate::import("numpy", convert = FALSE)
         sc <- reticulate::import("scipy.io", convert = FALSE)
 
         print("Reading data")
         ds <- sc$mmread("expression_matrix.mtx")
-        ds <- ds$T$tocsc()
+        ds <- ds$T$tocsc()    # sparse column 
         print("Running scrublet")
         scrub <- scr$Scrublet(ds, expected_doublet_rate = 0.05)
         res <- scrub$scrub_doublets(min_counts = 2L, 
                                     min_cells = 3L, 
                                     min_gene_variability_pctl = 85L, 
                                     n_prin_comps = 30L)
-        scores[[l]] <- py_to_r(res)[[1]]
+        scores[[l]] <- py_to_r(res)[[1]]    # convert pandas dataframe to r dataframe
         pred[[l]] <- py_to_r(res)[[2]]
         cells[[l]] <- cellIDs
         l = l + 1
