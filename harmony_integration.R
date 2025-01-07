@@ -1,0 +1,8 @@
+library(harmony)
+gc()
+rm(seurat)
+merged <- RunHarmony (merged, group.by.vars="Species")
+gc()
+merged <- FindNeighbors(merged, dims = 1:15, k.param = 25, reduction="harmony")
+merged <- FindClusters(merged, resolution = 0.2, reduction = "harmony") 
+merged <- RunUMAP(merged, dims = 1:15, reduction = "harmony", n.neighbors = 25, n.components = 2, min.dist = 0)
