@@ -36,10 +36,10 @@ read_dataset <- function(index){
   return(seurat)
 }
 
-
+## read in datasets as list of seurat objects
 list_of_seurat_objects<- lapply(1:length(datasets), read_dataset)
 
-
+# merge seurat objects
 integrated <- list_of_seurat_objects[[1]]
 for (i in 2:length(list_of_seurat_objects)){
   integrated <- merge(x=integrated, y=list_of_seurat_objects[[i]])
@@ -64,12 +64,12 @@ write.csv(zliczenie_sampli, "liczebność_sampli.csv")
 ```{r}
 scrublet_results <- fread("scrublet/scrublet.tsv")
 rownames(scrublet_results) <- scrublet_results$CellIDs
-integrated <- AddMetaData(integrated, scrublet_results[,c(2,3)])
+integrated <- AddMetaData(integrated, scrublet_results[,c(2,3)])  # add scrublet result
 
 thresh_doublets<-0.2
-isDoublet<-rep("FALSE",nrow(integrated@meta.data))
-isDoublet[integrated@meta.data$ScrubletScores>=thresh_doublets]<-T
-isDoublet<-factor(isDoublet,levels=c(F,T))
+isDoublet<-rep("FALSE",nrow(integrated@meta.data))  #initiate as False (change later)
+isDoublet[integrated@meta.data$ScrubletScores>=thresh_doublets]<-T  # if >= 0.2 - mark as True
+isDoublet<-factor(isDoublet,levels=c(F,T))  # for consistent ordeing
 integrated = AddMetaData(integrated,isDoublet,col.name="isDoublet")
 
 plot(density(log10(integrated@meta.data$ScrubletScores)),main="Scublet's Doublet Scores");abline(v=log10(thresh_doublets))
@@ -89,12 +89,14 @@ plot(density(log10(integrated@meta.data$ScrubletScores)),main="Scublet's Doublet
 ```
 
 ```{r}
+## remove duplicates
 indeksy_dublety <- which(integrated@meta.data[["isDoublet"]]==TRUE)
 barkody_dublety <- rownames(integrated@meta.data)[indeksy_dublety]
-integrated <- subset(integrated, cells = barkody_dublety, invert = TRUE)
+integrated <- subset(integrated, cells = barkody_dublety, invert = TRUE)  #exclude duplicates
 ```
 
 ```{r}
+## run Seurat DGE
 integrated <- NormalizeData(integrated)
 integrated <- FindVariableFeatures(integrated, selection.method="vst", nfeatures=5000)
 top10 <- head(VariableFeatures(integrated), 10)
