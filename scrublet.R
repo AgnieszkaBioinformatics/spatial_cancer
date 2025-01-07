@@ -88,7 +88,7 @@ for (i in 1:length(seurat)) {
         ds <- ds$T$tocsc()    # sparse column 
         print("Running scrublet")
         scrub <- scr$Scrublet(ds, expected_doublet_rate = 0.05)
-        res <- scrub$scrub_doublets(min_counts = 2L, 
+        res <- scrub$scrub_doublets(min_counts = 2L,         # dataframe with True and False values
                                     min_cells = 3L, 
                                     min_gene_variability_pctl = 85L, 
                                     n_prin_comps = 30L)
