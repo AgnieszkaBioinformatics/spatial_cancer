@@ -52,4 +52,41 @@ for (channel in c(1, 2)) {
 }
 
 
+## GSE148673 - only barcodes present
+
+## GSE161529
+samples <- readLines("pub1/breast/GSE161529/samples2.txt")
+genes_p <- paste0(getwd(), "/pub1/breast/GSE161529/", "GSE161529%5Ffeatures.tsv")
+genes <- read_tsv(genes_p, 
+                  col_names = c("gene_id", "gene_name"),
+                  show_col_types = FALSE)
+
+for (sample in samples) {
+  base_path <- paste0(getwd(), "/pub1/breast/GSE161529/", sample)
+  mtx <- readMM(paste0(base_path, "-matrix.mtx"))
+  barcodes <- read_tsv(paste0(base_path, "-barcodes.tsv"), 
+                       col_names = "cell_id",
+                       show_col_types = FALSE)
+  rownames(mtx) <- genes$gene_id
+  colnames(mtx) <- barcodes$cell_id
+  mtx_list[[sample]] <- mtx
+}  
+
+
+
+######## colorectal 
+## GSE178341
+adata <- readH5AD(paste0("/pub1/colorectal", 
+                         "GSE178341%5Fcrc10x%5Ffull%5Fc295v4%5Fsubmit.h5"))
+
+metadata <- read_csv(paste0("/pub1/colorectal",
+                            "GSE178341%5Fcrc10x%5Ffull%5Fc295v4%5Fsubmit%5Fmetatables.csv"))
+
+
+## 2098-Colorectal
+mtx <- readMM(paste0("/pub1/colorectal/2098-Colorectal/CRC_counts/", 
+                     "matrix.mtx"))
+barcodes <- read_tsv(paste0("/pub1/colorectal/2098-Colorectal/CRC_counts/",
+                            "barcodes.tsv"),
+                     )
   
